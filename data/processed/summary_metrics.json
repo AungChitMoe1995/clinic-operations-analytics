@@ -1,0 +1,36 @@
+{
+    "overall": {
+        "total_scheduled": 16998,
+        "completed_visits": 13891,
+        "no_shows": 1898,
+        "cancellations": 1209,
+        "unique_patients_seen": 2775,
+        "overall_no_show_rate_pct": 11.17,
+        "overall_mean_wait_min": 28.0,
+        "overall_median_wait_min": 21.1,
+        "overall_p75_wait_min": 36.3,
+        "overall_p90_wait_min": 55.9
+    },
+    "before_after": {
+        "pre_intervention": {
+            "scheduled": 7998,
+            "completed": 6560,
+            "median_wait_min": 15.7,
+            "p90_wait_min": 39.2,
+            "morning_median_wait_min": 16.5,
+            "morning_p90_wait_min": 41.9,
+            "afternoon_median_wait_min": 15.0,
+            "afternoon_p90_wait_min": 35.2
+        },
+        "post_intervention": {
+            "scheduled": 9000,
+            "completed": 7322,
+            "median_wait_min": 26.4,
+            "p90_wait_min": 68.0,
+            "morning_median_wait_min": 35.8,
+            "morning_p90_wait_min": 76.3,
+            "afternoon_median_wait_min": 15.2,
+            "afternoon_p90_wait_min": 35.8
+        }
+    }
+}

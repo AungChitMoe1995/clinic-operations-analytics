@@ -1,0 +1,6 @@
+appointment_type_id,appointment_type_name,standard_duration_min,description
+APT-ROUT,Routine Follow-Up,15,"Stable chronic follow-up, lab review, repeat prescription"
+APT-ACUT,Acute / Same-Day Illness,15,"URTI, acute infection, minor musculoskeletal injury"
+APT-NEWP,Comprehensive New Patient,30,"Initial intake, comprehensive history and physical"
+APT-CHRON,Chronic Disease Care Plan Review,30,Multi-morbidity diabetic/hypertensive review and care plan
+APT-PREV,Preventive Wellness / Health Check,30,"Annual adult wellness, pediatric developmental screening"

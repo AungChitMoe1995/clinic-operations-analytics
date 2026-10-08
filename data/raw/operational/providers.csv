@@ -1,0 +1,5 @@
+provider_id,provider_name,specialty,target_daily_capacity
+PRV-001,"Dr. Arthur Vance, MD",Internal Medicine,11
+PRV-002,"Dr. Brenda Chen, MD",Family Medicine,13
+PRV-003,"Dr. Tariq Al-Mansoor, MD",Family Medicine,11
+PRV-004,"Dr. Sarah Jenkins, MD",Pediatrics & Family Medicine,11

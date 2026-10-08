@@ -1,0 +1,3269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Operations Analytics Dashboard | Metro North Family Health Centre</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --secondary: #0D9488;
+            --accent: #E11D48;
+            --warning: #F59E0B;
+            --bg-page: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        header {
+            background: var(--bg-card);
+            padding: 24px 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .title-group h1 {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title-group p {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-top: 4px;
+        }
+
+        .badge-clinician {
+            background: #EFF6FF;
+            color: #1D4ED8;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border: 1px solid #BFDBFE;
+        }
+
+        /* Filters Bar */
+        .filter-bar {
+            background: var(--bg-card);
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .filter-group select {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13.5px;
+            color: var(--text-main);
+            background: #FFF;
+            cursor: pointer;
+            outline: none;
+            min-width: 200px;
+        }
+
+        .filter-group select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .filter-note {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #F1F5F9;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        /* Metrics Explainer Guide for Recruiters & Clinical Evaluators */
+        .metrics-guide-card {
+            background: #FFFFFF;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid #E2E8F0;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .guide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .guide-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .guide-tag {
+            font-size: 11px;
+            font-weight: 600;
+            background: #F1F5F9;
+            color: #64748B;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .guide-item {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .guide-badge {
+            align-self: flex-start;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .median-badge {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .p90-badge {
+            background: #FFE4E6;
+            color: #BE123C;
+        }
+
+        .overrun-badge {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .guide-desc {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.45;
+        }
+
+        .guide-desc strong {
+            color: #1E293B;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-light);
+        }
+
+        .kpi-card.alert::before {
+            background: var(--accent);
+        }
+
+        .kpi-card.success::before {
+            background: var(--secondary);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 6px 0 2px;
+        }
+
+        .kpi-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            padding: 22px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-card.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 1024px) {
+            .chart-card.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        .chart-header {
+            margin-bottom: 16px;
+        }
+
+        .chart-header h3 {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .chart-header p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .chart-container {
+            position: relative;
+            flex-grow: 1;
+            min-height: 280px;
+        }
+
+        /* Findings & Recommendations Panel */
+        .insights-panel {
+            background: var(--bg-card);
+            padding: 24px 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .insights-panel h2 {
+            font-size: 18px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .insight-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .insight-box.highlight {
+            border-left: 4px solid var(--accent);
+            background: #FFF1F2;
+        }
+
+        .insight-box.action {
+            border-left: 4px solid var(--secondary);
+            background: #F0FDF4;
+        }
+
+        .insight-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .insight-text {
+            font-size: 12.5px;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 16px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="title-group">
+            <h1>🏥 Clinic Operations Analytics: Patient Flow & Waiting Time</h1>
+            <p><strong>Facility:</strong> Metro North Family Health Centre &nbsp;|&nbsp; <strong>Observation Window:</strong> Jan 1, 2024 – Dec 31, 2024 (250 Operating Days)</p>
+        </div>
+        <div class="badge-clinician">
+            🩺 Clinical & Informatics Portfolio Case Study
+        </div>
+    </header>
+
+    <!-- Filters Bar -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label for="filter-period">Operational Period</label>
+            <select id="filter-period" onchange="updateDashboard()">
+                <option value="ALL">Full Year 2024 (Baseline & Post)</option>
+                <option value="PRE">Pre-Intervention (Jan–Jun: 20-min morning slots)</option>
+                <option value="POST">Post-Intervention (Jul–Dec: 15-min compressed morning slots)</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filter-provider">Attending Clinician</label>
+            <select id="filter-provider" onchange="updateDashboard()">
+                <option value="ALL">All Attending Clinicians (4 Providers)</option>
+                <option value="PRV-001">Dr. Arthur Vance, MD (Internal Medicine)</option>
+                <option value="PRV-002">Dr. Brenda Chen, MD (Family Medicine)</option>
+                <option value="PRV-003">Dr. Tariq Al-Mansoor, MD (Family Medicine)</option>
+                <option value="PRV-004">Dr. Sarah Jenkins, MD (Pediatrics & Family Med)</option>
+            </select>
+        </div>
+
+        <div class="filter-note">
+            ⚡ Data validated via Healthcare DQ Audit (N = 16,998 appointments)
+        </div>
+    </div>
+
+    <!-- Clinical & Evaluation Metrics Guide (For Evaluators, HR & Clinical Directors) -->
+    <div class="metrics-guide-card">
+        <div class="guide-header">
+            <span class="guide-title">💡 How to Read Operational Metrics (Clinical Evaluator & HR Guide)</span>
+            <span class="guide-tag">Standard Healthcare KPI Definitions</span>
+        </div>
+        <div class="guide-grid">
+            <div class="guide-item">
+                <div class="guide-badge median-badge">Median Wait (P50)</div>
+                <div class="guide-desc">
+                    <strong>Typical Patient Experience:</strong> Exactly half of all patients waited less than this, and half waited more. Unlike a mathematical average, the median is not distorted by rare extreme outliers.
+                </div>
+            </div>
+            <div class="guide-item">
+                <div class="guide-badge p90-badge">P90 Wait Time (90th Percentile)</div>
+                <div class="guide-desc">
+                    <strong>Worst 10% Longest Waits:</strong> The threshold separating the fastest 90% from the slowest 10%. In healthcare (NHS, Australia, Singapore MOH), P90 measures severe backlogs that trigger walkouts and formal complaints.
+                </div>
+            </div>
+            <div class="guide-item">
+                <div class="guide-badge overrun-badge">Slot Overrun Rate (%)</div>
+                <div class="guide-desc">
+                    <strong>Consultation Exceeding Slot:</strong> The percentage of consults exceeding scheduled appointment duration by &gt;5 minutes, identifying clinician workload strain and appointment template mismatch.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Booked Visits</div>
+            <div class="kpi-value" id="kpi-booked">16,998</div>
+            <div class="kpi-subtext" id="kpi-booked-sub">~68.0 appointments / day</div>
+        </div>
+
+        <div class="kpi-card success">
+            <div class="kpi-label">Completed Consults</div>
+            <div class="kpi-value" id="kpi-completed">13,891</div>
+            <div class="kpi-subtext">81.7% Completion Rate</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Unique Patients Seen</div>
+            <div class="kpi-value" id="kpi-patients">2,775</div>
+            <div class="kpi-subtext">Synthea Active Panel</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Median Wait (P50)</div>
+            <div class="kpi-value" id="kpi-median">21.1 m</div>
+            <div class="kpi-subtext">Typical Patient Experience</div>
+        </div>
+
+        <div class="kpi-card alert">
+            <div class="kpi-label">P90 Wait Time</div>
+            <div class="kpi-value" id="kpi-p90">55.9 m</div>
+            <div class="kpi-subtext" id="kpi-p90-sub">Worst 10% Waited ≥ 55.9m</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">No-Show Rate</div>
+            <div class="kpi-value" id="kpi-noshow">11.2%</div>
+            <div class="kpi-subtext">1,898 Missed Appointments</div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+        <!-- Chart 1: Monthly Volume -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Visual 1: Monthly Appointment Volume Trajectory</h3>
+                <p>Tracking clinic volume before and after the July 1 operational intervention</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartMonthlyVol"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Diurnal Hourly Curve -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Visual 2: Diurnal Waiting Time Curve (Hourly Percentiles)</h3>
+                <p>Median (Typical) vs P90 (Worst 10% Delays) across the clinic operating day (08:00 – 16:00)</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartHourlyCurve"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 3: Quasi-Experimental Pre vs Post -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Visual 3: Root Cause Isolation: Morning Queue Collapse vs Afternoon Control</h3>
+                <p>Contrasting morning compressed slots against stable afternoon sessions (Median vs Worst 10% P90)</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartPrePost"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 4: Waiting Time by Appointment Type -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Visual 4: Patient Waiting Time by Appointment Type</h3>
+                <p>Evaluating clinical complexity: Typical Wait (Median) vs Worst 10% Tail (P90) by visit category</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartAptType"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 5: Provider Workload & Overruns -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Visual 5: Clinician Clinical Hours & Slot Overrun Rates</h3>
+                <p>Provider-level consultation delivery vs frequency of exceeding slot by >5 min</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartProvider"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 6: No-Show Patterns by Weekday -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Visual 6: Missed Appointments (No-Shows) by Day of Week</h3>
+                <p>Identifying weekly patterns to inform overbooking policy and SMS reminder scheduling</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="chartNoShow"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Findings & Recommendations Panel -->
+    <div class="insights-panel">
+        <h2>📋 Clinical & Operational Findings Summary</h2>
+        <div class="insights-grid">
+            <div class="insight-box highlight">
+                <div class="insight-title">1. Mid-Morning Queuing Cascades Driven by Unbuffered Slot Compression</div>
+                <div class="insight-text">
+                    <strong>Evidence:</strong> Morning P90 wait exploded from <strong>41.9 min</strong> (Pre) to <strong>76.3 min</strong> (Post). Meanwhile, afternoon clinic waiting times remained completely stable (35.2m vs 35.8m).<br>
+                    <strong>Clinical Cause:</strong> Compressing morning slots to 15 minutes removed schedule buffer times. Stochastic overruns compounded across consecutive patients by 10:30 AM.
+                </div>
+            </div>
+
+            <div class="insight-box highlight">
+                <div class="insight-title">2. Case-Mix Mismatch for Complex Chronic Reviews</div>
+                <div class="insight-text">
+                    <strong>Evidence:</strong> Dr. Arthur Vance (Internal Medicine) had a <strong>48.3% slot overrun rate</strong> and delivered 1,307 clinical hours. Chronic Care Plan reviews took 24.5 min on average.<br>
+                    <strong>Clinical Cause:</strong> Booking multi-morbid patients into shortened morning slots without protected duration triggered schedule slippage.
+                </div>
+            </div>
+
+            <div class="insight-box action">
+                <div class="insight-title">3. Actionable Operational Recommendation: Catch-Up Buffers</div>
+                <div class="insight-text">
+                    <strong>Recommendation:</strong> Insert an unbooked 15-minute administrative buffer slot at <strong>10:30 AM</strong> on all morning clinician templates. In queuing theory, this absorbs upstream overruns and prevents queue collapse before the 11:00 AM hour.
+                </div>
+            </div>
+
+            <div class="insight-box action">
+                <div class="insight-title">4. Actionable Recommendation: Dynamic Nursing Intake</div>
+                <div class="insight-text">
+                    <strong>Recommendation:</strong> Reallocate triage nursing shifts to open a <strong>3rd triage intake station between 08:30 and 10:15 AM</strong>, eliminating the front-end vitals bottleneck where lobby wait exceeded 18 minutes.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Clinic Operations Analytics Portfolio &nbsp;|&nbsp; Designed for International Healthcare IT & Clinical Informatics Roles &nbsp;|&nbsp; Built with SQL, Python & Chart.js</p>
+    </footer>
+</div>
+
+<script>
+    // Embedded analytical metrics
+    const DASHBOARD_DATA = {
+  "ALL_ALL": {
+    "kpis": {
+      "booked": "16,998",
+      "booked_sub": "~68.0 appointments / day",
+      "completed": "13,891",
+      "completed_sub": "81.7% Completion Rate",
+      "patients": "2,775",
+      "median": "21.1 m",
+      "p90": "55.9 m",
+      "p90_sub": "Worst 10% waited \u2265 55.9m",
+      "noshow": "11.2%",
+      "noshow_sub": "1,898 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        1342,
+        1280,
+        1344,
+        1408,
+        1408,
+        1216,
+        1584,
+        1584,
+        1440,
+        1584,
+        1296,
+        1512
+      ],
+      "completed": [
+        1107,
+        1054,
+        1082,
+        1166,
+        1150,
+        1010,
+        1305,
+        1276,
+        1164,
+        1270,
+        1070,
+        1237
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        25.3,
+        50.6,
+        72.9,
+        86.1,
+        24.0,
+        36.9,
+        41.9
+      ],
+      "median": [
+        13.6,
+        24.6,
+        35.8,
+        37.8,
+        13.4,
+        16.7,
+        20.1
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        16.5,
+        35.8,
+        15.0,
+        15.2
+      ],
+      "p90": [
+        41.9,
+        76.3,
+        35.2,
+        35.8
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        23.5,
+        20.9,
+        20.4,
+        20.0,
+        20.3
+      ],
+      "p90": [
+        62.7,
+        56.0,
+        54.7,
+        52.8,
+        52.6
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        1307.5,
+        1162.1,
+        1128.7,
+        1124.2
+      ],
+      "overrun": [
+        48.3,
+        32.4,
+        29.4,
+        29.5
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        12.88,
+        10.7,
+        10.48,
+        11.29,
+        10.65
+      ]
+    }
+  },
+  "ALL_PRV-001": {
+    "kpis": {
+      "booked": "4,250",
+      "booked_sub": "~17.0 appointments / day",
+      "completed": "3,506",
+      "completed_sub": "82.5% Completion Rate",
+      "patients": "1,989",
+      "median": "24.4 m",
+      "p90": "63.6 m",
+      "p90_sub": "Worst 10% waited \u2265 63.6m",
+      "noshow": "10.5%",
+      "noshow_sub": "448 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        336,
+        320,
+        336,
+        352,
+        352,
+        304,
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        276,
+        265,
+        274,
+        295,
+        293,
+        254,
+        325,
+        307,
+        300,
+        326,
+        277,
+        314
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        24.7,
+        53.8,
+        83.4,
+        98.6,
+        24.4,
+        39.7,
+        46.4
+      ],
+      "median": [
+        13.9,
+        28.6,
+        43.3,
+        47.0,
+        13.4,
+        21.3,
+        24.7
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        22.0,
+        39.4,
+        16.9,
+        16.2
+      ],
+      "p90": [
+        49.0,
+        88.2,
+        39.7,
+        38.5
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        25.4,
+        24.4,
+        23.9,
+        21.4,
+        24.2
+      ],
+      "p90": [
+        67.8,
+        63.8,
+        60.1,
+        54.0,
+        59.2
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        1307.5,
+        0,
+        0,
+        0
+      ],
+      "overrun": [
+        48.3,
+        0,
+        0,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        12.37,
+        10.75,
+        10.35,
+        9.43,
+        9.93
+      ]
+    }
+  },
+  "ALL_PRV-002": {
+    "kpis": {
+      "booked": "4,250",
+      "booked_sub": "~17.0 appointments / day",
+      "completed": "3,464",
+      "completed_sub": "81.5% Completion Rate",
+      "patients": "2,002",
+      "median": "19.6 m",
+      "p90": "53.5 m",
+      "p90_sub": "Worst 10% waited \u2265 53.5m",
+      "noshow": "11.4%",
+      "noshow_sub": "483 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        336,
+        320,
+        336,
+        352,
+        352,
+        304,
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        267,
+        256,
+        277,
+        292,
+        288,
+        242,
+        327,
+        318,
+        293,
+        319,
+        277,
+        308
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        24.1,
+        49.6,
+        72.4,
+        77.7,
+        22.6,
+        37.6,
+        39.9
+      ],
+      "median": [
+        13.2,
+        23.7,
+        32.5,
+        31.9,
+        13.4,
+        15.8,
+        19.8
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        14.8,
+        33.8,
+        14.5,
+        14.7
+      ],
+      "p90": [
+        35.5,
+        73.1,
+        34.4,
+        35.2
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        21.6,
+        21.0,
+        18.9,
+        19.5,
+        17.1
+      ],
+      "p90": [
+        57.9,
+        51.5,
+        53.2,
+        52.0,
+        47.5
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        0,
+        1128.7,
+        0
+      ],
+      "overrun": [
+        0,
+        0,
+        29.4,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        12.5,
+        9.76,
+        11.53,
+        12.85,
+        10.39
+      ]
+    }
+  },
+  "ALL_PRV-003": {
+    "kpis": {
+      "booked": "4,250",
+      "booked_sub": "~17.0 appointments / day",
+      "completed": "3,484",
+      "completed_sub": "82.0% Completion Rate",
+      "patients": "1,969",
+      "median": "20.4 m",
+      "p90": "54.3 m",
+      "p90_sub": "Worst 10% waited \u2265 54.3m",
+      "noshow": "10.8%",
+      "noshow_sub": "459 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        336,
+        320,
+        336,
+        352,
+        352,
+        304,
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        284,
+        263,
+        268,
+        289,
+        284,
+        257,
+        324,
+        335,
+        283,
+        326,
+        259,
+        312
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        27.2,
+        50.8,
+        67.6,
+        77.8,
+        24.0,
+        35.7,
+        40.3
+      ],
+      "median": [
+        13.6,
+        24.3,
+        35.1,
+        36.8,
+        13.4,
+        16.0,
+        20.0
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        16.3,
+        35.6,
+        15.0,
+        15.1
+      ],
+      "p90": [
+        42.2,
+        70.1,
+        32.8,
+        33.8
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        21.1,
+        21.0,
+        19.8,
+        20.9,
+        18.8
+      ],
+      "p90": [
+        53.1,
+        56.6,
+        54.1,
+        55.4,
+        48.4
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        1162.1,
+        0,
+        0
+      ],
+      "overrun": [
+        0,
+        32.4,
+        0,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        11.73,
+        11.09,
+        9.76,
+        11.08,
+        10.39
+      ]
+    }
+  },
+  "ALL_PRV-004": {
+    "kpis": {
+      "booked": "4,248",
+      "booked_sub": "~17.0 appointments / day",
+      "completed": "3,437",
+      "completed_sub": "80.9% Completion Rate",
+      "patients": "1,990",
+      "median": "19.6 m",
+      "p90": "52.2 m",
+      "p90_sub": "Worst 10% waited \u2265 52.2m",
+      "noshow": "12.0%",
+      "noshow_sub": "508 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        334,
+        320,
+        336,
+        352,
+        352,
+        304,
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        280,
+        270,
+        263,
+        290,
+        285,
+        257,
+        329,
+        316,
+        288,
+        299,
+        257,
+        303
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        27.0,
+        46.2,
+        68.5,
+        82.9,
+        23.8,
+        35.2,
+        37.3
+      ],
+      "median": [
+        13.6,
+        23.3,
+        32.7,
+        34.5,
+        13.7,
+        15.3,
+        16.2
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        15.8,
+        34.3,
+        14.3,
+        14.8
+      ],
+      "p90": [
+        38.1,
+        72.8,
+        31.7,
+        33.9
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        22.8,
+        18.1,
+        19.7,
+        19.7,
+        19.8
+      ],
+      "p90": [
+        61.7,
+        49.1,
+        53.2,
+        50.5,
+        54.1
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        0,
+        0,
+        1124.2
+      ],
+      "overrun": [
+        0,
+        0,
+        0,
+        29.5
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        14.92,
+        11.2,
+        10.26,
+        11.79,
+        11.89
+      ]
+    }
+  },
+  "PRE_ALL": {
+    "kpis": {
+      "booked": "7,998",
+      "booked_sub": "~64.0 appointments / day",
+      "completed": "6,569",
+      "completed_sub": "82.1% Completion Rate",
+      "patients": "2,533",
+      "median": "15.7 m",
+      "p90": "39.2 m",
+      "p90_sub": "Worst 10% waited \u2265 39.2m (Baseline)",
+      "noshow": "10.9%",
+      "noshow_sub": "868 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "booked": [
+        1342,
+        1280,
+        1344,
+        1408,
+        1408,
+        1216
+      ],
+      "completed": [
+        1107,
+        1054,
+        1082,
+        1166,
+        1150,
+        1010
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        23.5,
+        37.4,
+        47.8,
+        48.9,
+        24.0,
+        37.3,
+        40.4
+      ],
+      "median": [
+        13.4,
+        17.0,
+        20.7,
+        22.2,
+        13.4,
+        16.5,
+        19.9
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        16.5,
+        35.8,
+        15.0,
+        15.2
+      ],
+      "p90": [
+        41.9,
+        76.3,
+        35.2,
+        35.8
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        16.3,
+        16.5,
+        15.5,
+        15.5,
+        15.6
+      ],
+      "p90": [
+        41.4,
+        40.0,
+        38.8,
+        37.4,
+        38.5
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        613.9,
+        543.7,
+        528.2,
+        533.4
+      ],
+      "overrun": [
+        40.3,
+        26.3,
+        25.5,
+        24.3
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        11.72,
+        10.22,
+        9.39,
+        11.54,
+        11.48
+      ]
+    }
+  },
+  "PRE_PRV-001": {
+    "kpis": {
+      "booked": "2,000",
+      "booked_sub": "~16.0 appointments / day",
+      "completed": "1,657",
+      "completed_sub": "82.8% Completion Rate",
+      "patients": "1,251",
+      "median": "19.9 m",
+      "p90": "45.2 m",
+      "p90_sub": "Worst 10% waited \u2265 45.2m (Baseline)",
+      "noshow": "10.2%",
+      "noshow_sub": "203 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "booked": [
+        336,
+        320,
+        336,
+        352,
+        352,
+        304
+      ],
+      "completed": [
+        276,
+        265,
+        274,
+        295,
+        293,
+        254
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        24.1,
+        41.5,
+        53.9,
+        59.1,
+        25.1,
+        40.7,
+        44.9
+      ],
+      "median": [
+        13.8,
+        22.6,
+        30.3,
+        30.0,
+        13.6,
+        21.6,
+        25.5
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        22.0,
+        39.4,
+        16.9,
+        16.2
+      ],
+      "p90": [
+        49.0,
+        88.2,
+        39.7,
+        38.5
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        19.2,
+        20.2,
+        20.0,
+        17.8,
+        22.6
+      ],
+      "p90": [
+        43.7,
+        49.0,
+        46.4,
+        44.0,
+        47.8
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        613.9,
+        0,
+        0,
+        0
+      ],
+      "overrun": [
+        40.3,
+        0,
+        0,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        10.8,
+        10.82,
+        8.25,
+        10.1,
+        10.82
+      ]
+    }
+  },
+  "PRE_PRV-002": {
+    "kpis": {
+      "booked": "2,000",
+      "booked_sub": "~16.0 appointments / day",
+      "completed": "1,622",
+      "completed_sub": "81.1% Completion Rate",
+      "patients": "1,238",
+      "median": "14.7 m",
+      "p90": "35.2 m",
+      "p90_sub": "Worst 10% waited \u2265 35.2m (Baseline)",
+      "noshow": "12.0%",
+      "noshow_sub": "241 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "booked": [
+        336,
+        320,
+        336,
+        352,
+        352,
+        304
+      ],
+      "completed": [
+        267,
+        256,
+        277,
+        292,
+        288,
+        242
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        23.3,
+        35.4,
+        38.9,
+        38.8,
+        22.6,
+        37.5,
+        37.6
+      ],
+      "median": [
+        13.2,
+        15.0,
+        16.0,
+        18.2,
+        13.3,
+        15.7,
+        19.8
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        14.8,
+        33.8,
+        14.5,
+        14.7
+      ],
+      "p90": [
+        35.5,
+        73.1,
+        34.4,
+        35.2
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        14.2,
+        15.3,
+        14.5,
+        15.1,
+        14.2
+      ],
+      "p90": [
+        33.0,
+        37.1,
+        34.0,
+        35.8,
+        30.6
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        0,
+        528.2,
+        0
+      ],
+      "overrun": [
+        0,
+        0,
+        25.5,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        13.07,
+        9.86,
+        11.25,
+        13.7,
+        12.5
+      ]
+    }
+  },
+  "PRE_PRV-003": {
+    "kpis": {
+      "booked": "2,000",
+      "booked_sub": "~16.0 appointments / day",
+      "completed": "1,645",
+      "completed_sub": "82.2% Completion Rate",
+      "patients": "1,249",
+      "median": "15.5 m",
+      "p90": "38.8 m",
+      "p90_sub": "Worst 10% waited \u2265 38.8m (Baseline)",
+      "noshow": "10.4%",
+      "noshow_sub": "208 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "booked": [
+        336,
+        320,
+        336,
+        352,
+        352,
+        304
+      ],
+      "completed": [
+        284,
+        263,
+        268,
+        289,
+        284,
+        257
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        23.2,
+        38.0,
+        47.5,
+        49.2,
+        22.3,
+        35.7,
+        36.6
+      ],
+      "median": [
+        13.5,
+        15.8,
+        19.5,
+        22.1,
+        13.3,
+        15.7,
+        19.4
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        16.3,
+        35.6,
+        15.0,
+        15.1
+      ],
+      "p90": [
+        42.2,
+        70.1,
+        32.8,
+        33.8
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        15.3,
+        17.4,
+        15.5,
+        14.8,
+        15.2
+      ],
+      "p90": [
+        35.7,
+        39.8,
+        38.7,
+        38.5,
+        39.4
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        543.7,
+        0,
+        0
+      ],
+      "overrun": [
+        0,
+        26.3,
+        0,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        9.38,
+        10.58,
+        9.25,
+        12.5,
+        10.1
+      ]
+    }
+  },
+  "PRE_PRV-004": {
+    "kpis": {
+      "booked": "1,998",
+      "booked_sub": "~16.0 appointments / day",
+      "completed": "1,645",
+      "completed_sub": "82.3% Completion Rate",
+      "patients": "1,274",
+      "median": "15.2 m",
+      "p90": "35.7 m",
+      "p90_sub": "Worst 10% waited \u2265 35.7m (Baseline)",
+      "noshow": "10.8%",
+      "noshow_sub": "216 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "booked": [
+        334,
+        320,
+        336,
+        352,
+        352,
+        304
+      ],
+      "completed": [
+        280,
+        270,
+        263,
+        290,
+        285,
+        257
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        22.3,
+        34.0,
+        43.3,
+        45.2,
+        23.3,
+        35.0,
+        35.7
+      ],
+      "median": [
+        13.4,
+        16.5,
+        19.4,
+        20.7,
+        13.6,
+        15.3,
+        15.2
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        15.8,
+        34.3,
+        14.3,
+        14.8
+      ],
+      "p90": [
+        38.1,
+        72.8,
+        31.7,
+        33.9
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        14.6,
+        14.5,
+        15.2,
+        15.6,
+        15.2
+      ],
+      "p90": [
+        31.7,
+        35.5,
+        37.0,
+        35.7,
+        35.2
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        0,
+        0,
+        533.4
+      ],
+      "overrun": [
+        0,
+        0,
+        0,
+        24.3
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        13.64,
+        9.62,
+        8.79,
+        9.86,
+        12.5
+      ]
+    }
+  },
+  "POST_ALL": {
+    "kpis": {
+      "booked": "9,000",
+      "booked_sub": "~72.0 appointments / day",
+      "completed": "7,322",
+      "completed_sub": "81.4% Completion Rate",
+      "patients": "2,607",
+      "median": "26.4 m",
+      "p90": "68.0 m",
+      "p90_sub": "Worst 10% waited \u2265 68.0m (Peak: 76.3m)",
+      "noshow": "11.4%",
+      "noshow_sub": "1,030 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        1584,
+        1584,
+        1440,
+        1584,
+        1296,
+        1512
+      ],
+      "completed": [
+        1305,
+        1276,
+        1164,
+        1270,
+        1070,
+        1237
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        28.0,
+        56.5,
+        81.6,
+        98.5,
+        23.9,
+        36.6,
+        44.5
+      ],
+      "median": [
+        13.8,
+        29.9,
+        48.4,
+        59.6,
+        13.5,
+        17.0,
+        20.5
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        16.5,
+        35.8,
+        15.0,
+        15.2
+      ],
+      "p90": [
+        41.9,
+        76.3,
+        35.2,
+        35.8
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        29.2,
+        25.9,
+        25.9,
+        25.9,
+        25.0
+      ],
+      "p90": [
+        72.6,
+        67.6,
+        68.1,
+        64.2,
+        63.6
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        693.6,
+        618.4,
+        600.6,
+        590.8
+      ],
+      "overrun": [
+        55.4,
+        37.8,
+        32.7,
+        34.3
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        13.83,
+        11.11,
+        11.44,
+        11.05,
+        9.89
+      ]
+    }
+  },
+  "POST_PRV-001": {
+    "kpis": {
+      "booked": "2,250",
+      "booked_sub": "~18.0 appointments / day",
+      "completed": "1,849",
+      "completed_sub": "82.2% Completion Rate",
+      "patients": "1,347",
+      "median": "29.4 m",
+      "p90": "79.8 m",
+      "p90_sub": "Worst 10% waited \u2265 79.8m (Peak: 76.3m)",
+      "noshow": "10.9%",
+      "noshow_sub": "245 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        325,
+        307,
+        300,
+        326,
+        277,
+        314
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        27.1,
+        58.7,
+        93.5,
+        112.2,
+        22.9,
+        38.5,
+        47.4
+      ],
+      "median": [
+        14.2,
+        32.6,
+        55.8,
+        73.5,
+        13.1,
+        20.8,
+        23.6
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        22.0,
+        39.4,
+        16.9,
+        16.2
+      ],
+      "p90": [
+        49.0,
+        88.2,
+        39.7,
+        38.5
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        32.4,
+        29.9,
+        28.7,
+        26.4,
+        25.8
+      ],
+      "p90": [
+        82.1,
+        78.9,
+        78.8,
+        61.3,
+        78.7
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        693.6,
+        0,
+        0,
+        0
+      ],
+      "overrun": [
+        55.4,
+        0,
+        0,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        13.66,
+        10.7,
+        12.22,
+        8.8,
+        9.11
+      ]
+    }
+  },
+  "POST_PRV-002": {
+    "kpis": {
+      "booked": "2,250",
+      "booked_sub": "~18.0 appointments / day",
+      "completed": "1,842",
+      "completed_sub": "81.9% Completion Rate",
+      "patients": "1,357",
+      "median": "25.4 m",
+      "p90": "65.0 m",
+      "p90_sub": "Worst 10% waited \u2265 65.0m (Peak: 76.3m)",
+      "noshow": "10.8%",
+      "noshow_sub": "242 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        327,
+        318,
+        293,
+        319,
+        277,
+        308
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        25.9,
+        56.1,
+        79.5,
+        90.6,
+        22.0,
+        37.5,
+        40.6
+      ],
+      "median": [
+        13.3,
+        27.6,
+        47.2,
+        53.5,
+        13.4,
+        16.2,
+        19.7
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        14.8,
+        33.8,
+        14.5,
+        14.7
+      ],
+      "p90": [
+        35.5,
+        73.1,
+        34.4,
+        35.2
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        26.3,
+        26.5,
+        25.0,
+        25.3,
+        24.6
+      ],
+      "p90": [
+        64.3,
+        64.2,
+        66.6,
+        62.0,
+        61.4
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        0,
+        600.6,
+        0
+      ],
+      "overrun": [
+        0,
+        0,
+        32.7,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        12.04,
+        9.67,
+        11.78,
+        12.04,
+        8.44
+      ]
+    }
+  },
+  "POST_PRV-003": {
+    "kpis": {
+      "booked": "2,250",
+      "booked_sub": "~18.0 appointments / day",
+      "completed": "1,839",
+      "completed_sub": "81.7% Completion Rate",
+      "patients": "1,339",
+      "median": "26.0 m",
+      "p90": "63.6 m",
+      "p90_sub": "Worst 10% waited \u2265 63.6m (Peak: 76.3m)",
+      "noshow": "11.2%",
+      "noshow_sub": "251 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        324,
+        335,
+        283,
+        326,
+        259,
+        312
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        28.6,
+        56.5,
+        74.3,
+        89.0,
+        25.3,
+        35.7,
+        42.5
+      ],
+      "median": [
+        14.1,
+        29.1,
+        45.6,
+        55.7,
+        13.6,
+        16.7,
+        20.4
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        16.3,
+        35.6,
+        15.0,
+        15.1
+      ],
+      "p90": [
+        42.2,
+        70.1,
+        32.8,
+        33.8
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        25.7,
+        25.9,
+        25.3,
+        28.3,
+        24.5
+      ],
+      "p90": [
+        60.8,
+        65.5,
+        63.0,
+        68.8,
+        55.1
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        618.4,
+        0,
+        0
+      ],
+      "overrun": [
+        0,
+        37.8,
+        0,
+        0
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        13.66,
+        11.52,
+        10.22,
+        9.72,
+        10.67
+      ]
+    }
+  },
+  "POST_PRV-004": {
+    "kpis": {
+      "booked": "2,250",
+      "booked_sub": "~18.0 appointments / day",
+      "completed": "1,792",
+      "completed_sub": "79.6% Completion Rate",
+      "patients": "1,317",
+      "median": "25.4 m",
+      "p90": "64.3 m",
+      "p90_sub": "Worst 10% waited \u2265 64.3m (Peak: 76.3m)",
+      "noshow": "13.0%",
+      "noshow_sub": "292 Missed Appointments"
+    },
+    "monthly": {
+      "labels": [
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "booked": [
+        396,
+        396,
+        360,
+        396,
+        324,
+        378
+      ],
+      "completed": [
+        329,
+        316,
+        288,
+        299,
+        257,
+        303
+      ]
+    },
+    "hourly": {
+      "labels": [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "13:00",
+        "14:00",
+        "15:00"
+      ],
+      "p90": [
+        29.2,
+        53.9,
+        75.9,
+        93.8,
+        24.4,
+        35.6,
+        42.6
+      ],
+      "median": [
+        13.8,
+        29.9,
+        45.3,
+        55.9,
+        13.9,
+        15.5,
+        17.3
+      ]
+    },
+    "session": {
+      "labels": [
+        "Morning Clinic (Pre)",
+        "Morning Clinic (Post)",
+        "Afternoon Clinic (Pre)",
+        "Afternoon Clinic (Post)"
+      ],
+      "median": [
+        15.8,
+        34.3,
+        14.3,
+        14.8
+      ],
+      "p90": [
+        38.1,
+        72.8,
+        31.7,
+        33.9
+      ]
+    },
+    "apt_type": {
+      "labels": [
+        "Chronic Care Review",
+        "Comprehensive New Patient",
+        "Routine Follow-Up",
+        "Acute Illness",
+        "Preventive Health Check"
+      ],
+      "median": [
+        30.1,
+        22.2,
+        25.9,
+        25.2,
+        26.1
+      ],
+      "p90": [
+        68.5,
+        58.0,
+        66.3,
+        62.1,
+        65.0
+      ]
+    },
+    "providers": {
+      "labels": [
+        "Dr. Arthur Vance",
+        "Dr. Tariq Al-Mansoor",
+        "Dr. Brenda Chen",
+        "Dr. Sarah Jenkins"
+      ],
+      "hours": [
+        0,
+        0,
+        0,
+        590.8
+      ],
+      "overrun": [
+        0,
+        0,
+        0,
+        34.3
+      ]
+    },
+    "noshow": {
+      "labels": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "data": [
+        15.97,
+        12.55,
+        11.56,
+        13.66,
+        11.33
+      ]
+    }
+  }
+};
+
+    let chartMonthly, chartHourly, chartPrePost, chartAptType, chartProvider, chartNoShow;
+
+    function initCharts() {
+        const initial = DASHBOARD_DATA['ALL_ALL'];
+
+        // Chart 1: Monthly Volume
+        const ctxMonthly = document.getElementById('chartMonthlyVol').getContext('2d');
+        chartMonthly = new Chart(ctxMonthly, {
+            type: 'bar',
+            data: {
+                labels: initial.monthly.labels,
+                datasets: [
+                    {
+                        label: 'Total Booked',
+                        data: initial.monthly.booked,
+                        backgroundColor: '#1E3A8A'
+                    },
+                    {
+                        label: 'Completed Visits',
+                        data: initial.monthly.completed,
+                        backgroundColor: '#3B82F6'
+                    }
+                ]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Chart 2: Hourly Diurnal Curve
+        const ctxHourly = document.getElementById('chartHourlyCurve').getContext('2d');
+        chartHourly = new Chart(ctxHourly, {
+            type: 'line',
+            data: {
+                labels: initial.hourly.labels,
+                datasets: [
+                    {
+                        label: 'P90 Wait (Worst 10% Delays)',
+                        data: initial.hourly.p90,
+                        borderColor: '#E11D48',
+                        backgroundColor: 'rgba(225, 29, 72, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Median Wait (Typical Patient)',
+                        data: initial.hourly.median,
+                        borderColor: '#1E3A8A',
+                        backgroundColor: 'transparent',
+                        tension: 0.3,
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'P90 Wait: ' + context.parsed.y + ' min (Worst 10% Cutoff)';
+                                } else {
+                                    return 'Median Wait: ' + context.parsed.y + ' min (Typical Patient)';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Wait Time (Minutes)' } 
+                    } 
+                }
+            }
+        });
+
+        // Chart 3: Pre vs Post Session Comparison
+        const ctxPrePost = document.getElementById('chartPrePost').getContext('2d');
+        chartPrePost = new Chart(ctxPrePost, {
+            type: 'bar',
+            data: {
+                labels: initial.session.labels,
+                datasets: [
+                    {
+                        label: 'Median Wait (Typical)',
+                        data: initial.session.median,
+                        backgroundColor: '#3B82F6'
+                    },
+                    {
+                        label: 'P90 Wait (Worst 10% Delays)',
+                        data: initial.session.p90,
+                        backgroundColor: '#E11D48'
+                    }
+                ]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'Median Wait: ' + context.parsed.y + ' min (Typical Patient)';
+                                } else {
+                                    return 'P90 Wait: ' + context.parsed.y + ' min (Worst 10% Threshold)';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Wait Time (Minutes)' }
+                    } 
+                }
+            }
+        });
+
+        // Chart 4: Waiting Time by Appointment Type
+        const ctxAptType = document.getElementById('chartAptType').getContext('2d');
+        chartAptType = new Chart(ctxAptType, {
+            type: 'bar',
+            data: {
+                labels: initial.apt_type.labels,
+                datasets: [
+                    {
+                        label: 'Median Wait (Typical)',
+                        data: initial.apt_type.median,
+                        backgroundColor: '#0D9488'
+                    },
+                    {
+                        label: 'P90 Wait (Worst 10% Delays)',
+                        data: initial.apt_type.p90,
+                        backgroundColor: '#F59E0B'
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'Median Wait: ' + context.parsed.x + ' min (Typical)';
+                                } else {
+                                    return 'P90 Wait: ' + context.parsed.x + ' min (Worst 10% Delay)';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: { 
+                    x: { 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Wait Time (Minutes)' } 
+                    } 
+                }
+            }
+        });
+
+        // Chart 5: Provider Workload (Side-by-Side Dual Grouped Bars)
+        const ctxProvider = document.getElementById('chartProvider').getContext('2d');
+        chartProvider = new Chart(ctxProvider, {
+            type: 'bar',
+            data: {
+                labels: initial.providers.labels,
+                datasets: [
+                    {
+                        label: 'Clinical Hours (Left Axis)',
+                        data: initial.providers.hours,
+                        backgroundColor: '#1E3A8A',
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Slot Overrun Rate % (Right Axis)',
+                        data: initial.providers.overrun,
+                        backgroundColor: '#E11D48',
+                        borderRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'Clinical Hours: ' + context.parsed.y + ' hrs';
+                                } else {
+                                    return 'Slot Overrun Rate: ' + context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        type: 'linear', 
+                        position: 'left', 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Clinical Hours (hrs)' } 
+                    },
+                    y1: { 
+                        type: 'linear', 
+                        position: 'right', 
+                        beginAtZero: true, 
+                        max: 60, 
+                        grid: { drawOnChartArea: false }, 
+                        title: { display: true, text: 'Slot Overrun Rate (%)' } 
+                    }
+                }
+            }
+        });
+
+        // Chart 6: No-Show by Day
+        const ctxNoShow = document.getElementById('chartNoShow').getContext('2d');
+        chartNoShow = new Chart(ctxNoShow, {
+            type: 'bar',
+            data: {
+                labels: initial.noshow.labels,
+                datasets: [
+                    {
+                        label: 'No-Show Rate (%)',
+                        data: initial.noshow.data,
+                        backgroundColor: ['#E11D48', '#3B82F6', '#3B82F6', '#3B82F6', '#3B82F6']
+                    }
+                ]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'No-Show %' } } }
+            }
+        });
+
+        // Trigger dynamic scale initialization
+        updateDashboard();
+    }
+
+    function updateDashboard() {
+        const period = document.getElementById('filter-period').value;
+        const provider = document.getElementById('filter-provider').value;
+        const key = `${period}_${provider}`;
+        const slice = DASHBOARD_DATA[key] || DASHBOARD_DATA['ALL_ALL'];
+
+        // 1. Update KPI Cards
+        document.getElementById('kpi-booked').textContent = slice.kpis.booked;
+        document.getElementById('kpi-booked-sub').textContent = slice.kpis.booked_sub;
+        document.getElementById('kpi-completed').textContent = slice.kpis.completed;
+        document.getElementById('kpi-patients').textContent = slice.kpis.patients;
+        document.getElementById('kpi-median').textContent = slice.kpis.median;
+        document.getElementById('kpi-p90').textContent = slice.kpis.p90;
+        document.getElementById('kpi-p90-sub').textContent = slice.kpis.p90_sub;
+        document.getElementById('kpi-noshow').textContent = slice.kpis.noshow;
+
+        // 2. Update Visual 1: Monthly Volume
+        chartMonthly.data.labels = slice.monthly.labels;
+        chartMonthly.data.datasets[0].data = slice.monthly.booked;
+        chartMonthly.data.datasets[1].data = slice.monthly.completed;
+        const maxM = Math.max(...slice.monthly.booked, ...slice.monthly.completed, 10);
+        chartMonthly.options.scales.y.max = Math.ceil((maxM * 1.18) / 100) * 100;
+        chartMonthly.update();
+
+        // 3. Update Visual 2: Hourly Diurnal Curve (DYNAMIC HEADROOM PREVENTS CLIPPING)
+        chartHourly.data.labels = slice.hourly.labels;
+        chartHourly.data.datasets[0].data = slice.hourly.p90;
+        chartHourly.data.datasets[1].data = slice.hourly.median;
+        const maxH = Math.max(...slice.hourly.p90, ...slice.hourly.median, 10);
+        chartHourly.options.scales.y.max = Math.ceil((maxH * 1.25) / 10) * 10;
+        chartHourly.update();
+
+        // 4. Update Visual 3: Session Pre vs Post
+        chartPrePost.data.datasets[0].data = slice.session.median;
+        chartPrePost.data.datasets[1].data = slice.session.p90;
+        const maxS = Math.max(...slice.session.median, ...slice.session.p90, 10);
+        chartPrePost.options.scales.y.max = Math.ceil((maxS * 1.20) / 10) * 10;
+        chartPrePost.update();
+
+        // 5. Update Visual 4: Wait Time by Appointment Type
+        chartAptType.data.labels = slice.apt_type.labels;
+        chartAptType.data.datasets[0].data = slice.apt_type.median;
+        chartAptType.data.datasets[1].data = slice.apt_type.p90;
+        const maxA = Math.max(...slice.apt_type.median, ...slice.apt_type.p90, 10);
+        chartAptType.options.scales.x.max = Math.ceil((maxA * 1.20) / 10) * 10;
+        chartAptType.update();
+
+        // 6. Update Visual 5: Provider Workload
+        chartProvider.data.datasets[0].data = slice.providers.hours;
+        chartProvider.data.datasets[1].data = slice.providers.overrun;
+        const maxHrs = Math.max(...slice.providers.hours, 10);
+        chartProvider.options.scales.y.max = Math.ceil((maxHrs * 1.15) / 100) * 100;
+        const maxOv = Math.max(...slice.providers.overrun, 10);
+        chartProvider.options.scales.y1.max = Math.ceil((maxOv * 1.25) / 10) * 10;
+        chartProvider.update();
+
+        // 7. Update Visual 6: No-Show by Day
+        chartNoShow.data.datasets[0].data = slice.noshow.data;
+        const maxNS = Math.max(...slice.noshow.data, 5);
+        chartNoShow.options.scales.y.max = Math.ceil((maxNS * 1.30) / 5) * 5;
+        chartNoShow.update();
+    }
+
+    window.onload = initCharts;
+</script>
+
+</body>
+</html>
