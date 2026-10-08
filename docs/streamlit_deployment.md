@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-The Clinic Operations Analytics application is engineered for zero-configuration, instant deployment on **Streamlit Community Cloud**. It provides healthcare executives, clinical evaluators, and recruiters with an interactive decision-support interface featuring:
+The Clinic Operations Analytics application is engineered for zero-configuration, instant deployment on **Streamlit Community Cloud**. It provides healthcare executives, clinical leaders, and health service managers with an interactive decision-support interface featuring:
 
 - **Multi-Dimensional Cohort Drill-Down:** 15 pre-computed relational slices across 3 operational periods and 4 attending physicians.
 - **Interactive Plotly Visualizations:** 6 core queuing figures with interactive tooltips, custom hover states, and clear clinical thresholds.

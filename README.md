@@ -1,38 +1,41 @@
 # Clinic Operations Analytics: Investigating Patient Flow, Waiting Time and Provider Workload
 
-[![Healthcare Analytics](https://img.shields.io/badge/Domain-Healthcare%20Analytics-blue.svg)](https://github.com)
-[![Role](https://img.shields.io/badge/Role-Clinical%20Informatics%20%2F%20EHR%20Analyst-teal.svg)](https://github.com)
-[![Tools](https://img.shields.io/badge/Stack-SQL%20%7C%20Python%20%7C%20SQLite%20%7C%20Chart.js-1E3A8A.svg)](https://github.com)
+[![Live Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/)
+[![Executive Deck](https://img.shields.io/badge/Executive%20Briefing-11%20Slide%20PPTX-orange.svg)](docs/presentation/clinic_operations_executive_briefing.pptx)
+[![Healthcare Analytics](https://img.shields.io/badge/Domain-Healthcare%20Analytics-blue.svg)](https://github.com/AungChitMoe1995/clinic-operations-analytics)
+[![Clinical Lead](https://img.shields.io/badge/Lead-MBBS%20%7C%20Clinical%20Informatics-teal.svg)](https://github.com/AungChitMoe1995/clinic-operations-analytics)
 [![Data Quality](https://img.shields.io/badge/Audit-Healthcare%20DQ%20Validated-success.svg)](docs/data_quality_report.md)
 
 An end-to-end clinical operations and healthcare analytics case study investigating outpatient queuing dynamics, appointment template scheduling, and physician workload at **Metro North Family Health Centre (MN-FHC)**.
 
 ---
 
-## 🖥️ Live Interactive Dashboard & Visual Preview
+## 🚀 Live Interactive Decision Support & Executive Artifacts
 
-Explore the fully interactive, responsive operational dashboard with dynamic filters for operational period and attending clinician:
-
-**▶ [Open Interactive Clinic Operations Dashboard](dashboard/index.html)** *(Open directly in any modern web browser)*
+* **🌐 Live Streamlit Cloud Application:** **[clinic-operations-analytics.streamlit.app](https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/)**  
+  *Interactive decision-support platform featuring multi-dimensional cohort slicing, dynamic Plotly curves, and encounter data exports.*
+* **📑 Executive PowerPoint Briefing Deck:** **[Download Briefing Presentation (.PPTX)](docs/presentation/clinic_operations_executive_briefing.pptx)**  
+  *11-slide widescreen presentation designed for Hospital Boards and Clinical Executive Committees (structured SBAR framework).*
+* **💻 Standalone Offline Dashboard:** **[Open Local HTML5 Dashboard](dashboard/index.html)** *(zero-dependency browser app)*
 
 ![Clinic Operations Dashboard Preview](dashboard/dashboard_preview.png)
 
 ---
 
-## ⚡ Recruiter Quick Path (The 60-Second Summary)
+## ⚡ Executive Briefing (The 60-Second Summary)
 
-* **The Business Problem:** Following a mid-year scheduling change ("Morning Access Expansion" compressing morning slots to 15 min), Metro North Family Health Centre experienced an operational crisis: patient complaints doubled, mid-morning waiting lobbies overcrowded, and physicians routinely finished 45 minutes behind schedule. Management assumed overall volume had outgrown clinic physical capacity.
+* **The Operational Challenge:** Following a mid-year scheduling change ("Morning Access Expansion" compressing morning slots to 15 min), Metro North Family Health Centre experienced an operational crisis: patient complaints doubled, mid-morning waiting lobbies overcrowded, and physicians routinely finished 45 minutes behind schedule. Management assumed overall volume had outgrown clinic physical capacity.
 * **The Clinical Data Discovery:** Quasi-experimental session segmentation disproved management's volume assumption. While overall booked volume rose only 12.5%, **morning 90th-percentile (P90) wait times surged by 82% (from 41.9 min to 76.3 min)**. Crucially, **afternoon clinics remained completely stable (35.2 min vs 35.8 min)** across the exact same providers and rooms.
 * **The Root Cause:** Compressing morning slots to 15 minutes eliminated schedule buffer time. When complex multi-morbid patients (`Chronic Disease Care Plan Reviews` taking 24.5 min on average) were booked into shortened morning slots, physician overruns cascaded downstream, creating exponential queue delays by 10:30 AM.
-* **The Operational Fix:** Rather than hiring more staff or expanding clinic hours, clinic flow can be restored by **reinstating 30-minute protected slots for chronic visits**, inserting an **unbooked 15-minute administrative catch-up buffer at 10:30 AM**, and **adding a 3rd triage intake station during morning peak arrival windows**.
+* **The Operational Solution:** Rather than requesting costly capital expansion or recruitment budgets, clinic flow can be restored via a **cost-neutral 4-point operational restructuring**: reinstating **30-minute protected slots for chronic care reviews**, inserting an **unbooked 15-minute administrative catch-up buffer at 10:30 AM**, and **adding a 3rd triage intake station during morning peak arrival windows**.
 
 ---
 
-## 🩺 My Role: Clinical & Informatics Perspective
+## 🩺 Clinical & Informatics Leadership Perspective
 
 > *"As an MBBS clinician with Medical Software Coordinator experience, I bridge the gap between bedside clinical workflows and healthcare data architecture. I have worked directly with clinicians on EHR requirements, workflow optimization, user acceptance testing (UAT), and system implementation."*
 
-In this portfolio project, clinical domain knowledge shaped every stage of the analytical pipeline:
+In this case study, clinical domain knowledge shaped every stage of the analytical pipeline:
 1. **Clinical Workflow Grounding:** Recognizing that outpatient delays are not random bell curves, but rather discrete-event queues where upstream milestone stamps (`arrival_time` $\rightarrow$ `triage_start` $\rightarrow$ `doctor_start` $\rightarrow$ `checkout`) reveal the exact physical location of operational choke points.
 2. **EHR Data Governance:** Enforcing authentic enterprise EHR architecture—linking completed visits to billed clinical encounters (`encounters`), while ensuring missed appointments (`NO_SHOW`, `CANCELLED`) carry `encounter_id = NULL`.
 3. **Statistical Skepticism:** Rejecting arithmetic averages in favor of **Median (P50), P75, and P90 percentiles**, recognizing that right-skewed tails represent the vulnerable patients experiencing unacceptable delays.
@@ -239,30 +242,31 @@ clinic-operations-analytics/
 ├── streamlit_app.py                 # Streamlit Community Cloud interactive web app
 ├── app.py                           # Zero-configuration entry point alias
 ├── requirements.txt                 # Python library dependencies (pandas, plotly, streamlit, etc.)
-└── README.md                        # Portfolio case study documentation
+└── README.md                        # Comprehensive case study documentation
 ```
 
 ---
 
 ## ⚖️ Synthetic Data Disclaimer
 
-> **Data Attribution Notice:** Clinical and demographic variables in this project were generated using the open-source MITRE Synthea™ patient simulation framework. Clinic operational scheduling, milestone timestamps, provider templates, and queuing dynamics were independently synthesized for this healthcare operations portfolio project. No real patient data, protected health information (PHI), or actual clinical records were used.
+> **Data Attribution Notice:** Clinical and demographic variables in this project were generated using the open-source MITRE Synthea™ patient simulation framework. Clinic operational scheduling, milestone timestamps, provider templates, and queuing dynamics were independently synthesized for this healthcare operations case study. No real patient data, protected health information (PHI), or actual clinical records were used.
 
 ---
 
-## ☁️ Deploy to Streamlit Community Cloud (share.streamlit.io)
+## ☁️ Live Cloud Deployment (Streamlit Community Cloud)
 
-This application is 100% pre-configured for one-click deployment on **[Streamlit Community Cloud](https://share.streamlit.io/)**:
+This application is deployed and hosted live on **[Streamlit Community Cloud](https://share.streamlit.io/)**:
 
-1. **Push this repository to your GitHub account.**
-2. Log in to [share.streamlit.io](https://share.streamlit.io/) using your GitHub account.
-3. Click **"New app"**.
-4. Configure the deployment settings:
-   - **Repository:** `AungChitMoe1995/clinic-operations-analytics`
-   - **Branch:** `main`
-   - **Main file path:** `streamlit_app.py` *(or `app.py`)*
-5. Click **"Deploy!"**
-   - The app will automatically install dependencies from `requirements.txt`, load cached operational data slices, and launch with full interactive filtering, SBAR governance briefing, Plotly charts, and CSV downloads.
+* **🚀 Production Application:** **[https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/](https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/)**
+* **Repository Source:** `AungChitMoe1995/clinic-operations-analytics`
+* **Entry Point:** `streamlit_app.py` *(with fallback `app.py`)*
+* **Continuous Integration:** Automatically builds and updates on every commit pushed to the `main` branch.
+
+To deploy your own instance:
+1. Fork or push this repository to GitHub.
+2. Sign in to [share.streamlit.io](https://share.streamlit.io/) and click **"New app"**.
+3. Select `AungChitMoe1995/clinic-operations-analytics`, branch `main`, and main file `streamlit_app.py`.
+4. Click **"Deploy!"** (loads pre-aggregated mart slices instantly with zero server lag).
 
 ---
 

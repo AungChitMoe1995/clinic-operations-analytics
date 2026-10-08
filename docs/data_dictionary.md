@@ -153,4 +153,4 @@ All operational durations in SQL and Python are derived directly from the milest
 
 ## 4. Synthetic Data Disclaimer
 
-> **Data Attribution Notice:** Clinical and demographic variables in this dataset were generated following the open-source MITRE Synthea™ patient simulation framework. Clinic operational scheduling, milestone timestamps, provider templates, and queuing dynamics were independently synthesized for this healthcare operations portfolio project. No real patient data, protected health information (PHI), or actual clinical records were utilized.
+> **Data Attribution Notice:** Clinical and demographic variables in this dataset were generated following the open-source MITRE Synthea™ patient simulation framework. Clinic operational scheduling, milestone timestamps, provider templates, and queuing dynamics were independently synthesized for this healthcare operations case study. No real patient data, protected health information (PHI), or actual clinical records were utilized.

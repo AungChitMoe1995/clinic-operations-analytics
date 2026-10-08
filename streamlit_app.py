@@ -293,7 +293,7 @@ st.markdown("""
             </div>
         </div>
         <div style="text-align:right;">
-            <span class="badge-lead">Clinical & Informatics Portfolio Project</span>
+            <span class="badge-lead">Clinical & Health Informatics Case Study</span>
             <div style="font-size:11px; color:#64748b; margin-top:4px;">Lead MBBS Doctor & Clinical Data Analyst</div>
         </div>
     </div>
@@ -306,8 +306,8 @@ st.markdown("""
 # =============================================================================
 if nav_mode == "📊 Executive Dashboard":
 
-    # --- HR & Evaluator Guide Accordion ---
-    with st.expander("💡 How to Read Operational Metrics (Clinical Evaluator & HR Recruiter Guide)", expanded=True):
+    # --- Clinical & Operations Guide Accordion ---
+    with st.expander("💡 How to Read Operational Metrics (Clinical Leadership & Operations Guide)", expanded=True):
         col_g1, col_g2, col_g3 = st.columns(3)
         with col_g1:
             st.markdown("""
