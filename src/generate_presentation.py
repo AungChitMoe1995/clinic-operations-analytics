@@ -297,7 +297,7 @@ def build_presentation():
     add_slide_header(
         s4,
         "Healthcare Data Quality (DQ) Audit & Governance Framework",
-        "Algorithmic data cleaning pipeline resolving 6 real-world EHR anomalies to ensure cohort integrity",
+        "Algorithmic data cleaning pipeline resolving 6 simulated EHR anomalies to ensure cohort integrity",
         category="CLINICAL DATA GOVERNANCE & VALIDATION"
     )
 
@@ -308,7 +308,7 @@ def build_presentation():
     pillar_h = Inches(0.95)
 
     pillars = [
-        ("AUDITED ENCOUNTER COHORT", "16,998 Visits Audited", "2,775 Synthea active patients | 4 clinicians | 250 operating days"),
+        ("AUDITED ENCOUNTER COHORT", "17,004 Audited → 16,998 Clean", "2,775 Synthea active patients | 4 clinicians | 250 operating days"),
         ("MILESTONE TIMESTAMP GATES", "5 Sequential Milestones", "Arrival Kiosk -> Triage -> Doctor Start -> Doctor End -> Checkout"),
         ("HEALTHCARE DQ COMPLIANCE", "100% Validated Clean", "Algorithmic audit quarantined edge cases prior to statistical modeling")
     ]
@@ -399,7 +399,7 @@ def build_presentation():
     p_g1.space_after = Pt(2)
 
     p_g2 = tf_gov.add_paragraph()
-    p_g2.text = "All 16,998 analyzed encounters were algorithmically audited across 5 relational constraints, ensuring 100% compliance before statistical modeling."
+    p_g2.text = "All 17,004 raw records were algorithmically audited across 5 relational constraints; 16,998 clean encounters were retained for statistical modeling."
     p_g2.font.size = Pt(11)
     p_g2.font.color.rgb = C_WHITE
 

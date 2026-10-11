@@ -1,10 +1,11 @@
 # Clinic Operations Analytics: Investigating Patient Flow, Waiting Time and Provider Workload
 
-[![Live Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/)
+[![Live Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://clinic-operations-analytics-by-acm.streamlit.app/)
 [![Executive Deck](https://img.shields.io/badge/Executive%20Briefing-11%20Slide%20PPTX-orange.svg)](docs/presentation/clinic_operations_executive_briefing.pptx)
 [![Healthcare Analytics](https://img.shields.io/badge/Domain-Healthcare%20Analytics-blue.svg)](https://github.com/AungChitMoe1995/clinic-operations-analytics)
 [![Clinical Lead](https://img.shields.io/badge/Lead-MBBS%20%7C%20Clinical%20Informatics-teal.svg)](https://github.com/AungChitMoe1995/clinic-operations-analytics)
 [![Data Quality](https://img.shields.io/badge/Audit-Healthcare%20DQ%20Validated-success.svg)](docs/data_quality_report.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An end-to-end clinical operations and healthcare analytics case study investigating outpatient queuing dynamics, appointment template scheduling, and physician workload at **Metro North Family Health Centre (MN-FHC)**.
 
@@ -12,7 +13,7 @@ An end-to-end clinical operations and healthcare analytics case study investigat
 
 ## 🚀 Live Interactive Decision Support & Executive Artifacts
 
-* **🌐 Live Streamlit Cloud Application:** **[clinic-operations-analytics.streamlit.app](https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/)**  
+* **🌐 Live Streamlit Cloud Application:** **[clinic-operations-analytics-by-acm.streamlit.app](https://clinic-operations-analytics-by-acm.streamlit.app/)**  
   *Interactive decision-support platform featuring multi-dimensional cohort slicing, dynamic Plotly curves, and encounter data exports.*
 * **📑 Executive PowerPoint Briefing Deck:** **[Download Briefing Presentation (.PPTX)](docs/presentation/clinic_operations_executive_briefing.pptx)**  
   *11-slide widescreen presentation designed for Hospital Boards and Clinical Executive Committees (structured SBAR framework).*
@@ -210,9 +211,9 @@ clinic-operations-analytics/
 │
 ├── src/
 │   ├── generate_synthea_data.py     # Synthea patient cohort generator (2,800 patients)
-│   ├── generate_operational_data.py # Outpatient queuing simulation engine (17,000 visits)
+│   ├── generate_operational_data.py # Outpatient queuing simulation engine (17,004 raw visits)
 │   ├── load_to_sqlite.py            # SQLite schema executor & CSV ingestion pipeline
-│   ├── data_quality.py              # Healthcare DQ audit pipeline & cleaner
+│   ├── data_quality.py              # Healthcare DQ audit pipeline & cleaner (16,998 clean visits)
 │   ├── run_sql_analysis.py          # Automated SQL query execution runner
 │   ├── analysis.py                  # Python statistical modeling & figure generation
 │   ├── create_notebook.py           # Automated Jupyter Notebook generator
@@ -221,27 +222,36 @@ clinic-operations-analytics/
 │   ├── generate_presentation.py     # Executive 11-slide PowerPoint briefing generator
 │   └── generate_er_diagram.py       # High-resolution ER Diagram renderer
 │
+├── tests/
+│   └── test_pipeline_integrity.py   # Automated pytest suite verifying DQ lineage & KPIs
+│
 ├── notebooks/
 │   └── clinic_operations_analysis.ipynb # Interactive executive analysis notebook
 │
 ├── dashboard/
 │   ├── index.html                   # Interactive web dashboard (HTML5 / CSS3 / Chart.js)
+│   ├── dashboard_data.json          # 15 pre-computed cohort slices for zero-lag filtering
 │   └── dashboard_preview.png        # High-resolution dashboard preview graphic
 │
 ├── docs/
 │   ├── presentation/
-│   │   └── clinic_operations_executive_briefing.pptx # Executive 11-slide briefing deck
+│   │   ├── clinic_operations_executive_briefing.pptx # Executive 11-slide briefing deck
+│   │   └── slides_preview/          # Exported PNG previews of all 11 widescreen slides
 │   ├── data_dictionary.md           # Field definitions, constraints & duration formulas
 │   ├── data_quality_report.md       # Formal healthcare DQ audit report
 │   ├── methodology.md               # Analytical methodology & queuing framework
+│   ├── streamlit_deployment.md      # Streamlit Community Cloud deployment documentation
 │   ├── data_model.png               # High-resolution Entity-Relationship Diagram
-│   └── images/                      # Publication figures (Fig 1 to Fig 5)
+│   └── images/                      # Publication figures (Fig 1 to Fig 5 & previews)
 │
+├── .devcontainer/
+│   └── devcontainer.json            # Cloud container environment configuration
 ├── .streamlit/
 │   └── config.toml                  # Streamlit production theme & UI configuration
 ├── streamlit_app.py                 # Streamlit Community Cloud interactive web app
 ├── app.py                           # Zero-configuration entry point alias
-├── requirements.txt                 # Python library dependencies (pandas, plotly, streamlit, etc.)
+├── requirements.txt                 # Pinned Python library dependencies
+├── LICENSE                          # MIT Open-Source License
 └── README.md                        # Comprehensive case study documentation
 ```
 
@@ -257,7 +267,7 @@ clinic-operations-analytics/
 
 This application is deployed and hosted live on **[Streamlit Community Cloud](https://share.streamlit.io/)**:
 
-* **🚀 Production Application:** **[https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/](https://clinic-operations-analytics-ahvvbogjcwocgyunztkxwq.streamlit.app/)**
+* **🚀 Production Application:** **[https://clinic-operations-analytics-by-acm.streamlit.app/](https://clinic-operations-analytics-by-acm.streamlit.app/)**
 * **Repository Source:** `AungChitMoe1995/clinic-operations-analytics`
 * **Entry Point:** `streamlit_app.py` *(with fallback `app.py`)*
 * **Continuous Integration:** Automatically builds and updates on every commit pushed to the `main` branch.
@@ -295,13 +305,16 @@ python src/load_to_sqlite.py
 python src/data_quality.py
 ```
 
-### 4. Run Analysis & Visualizations
+### 4. Run Analysis, Visualizations & Verification Suite
 ```bash
 # Execute the complete SQL analysis suite
 python src/run_sql_analysis.py
 
 # Run Python statistical modeling and generate figures
 python src/analysis.py
+
+# Run automated pytest verification suite
+pytest tests/test_pipeline_integrity.py -v
 ```
 
 ### 5. Launch the Web Applications
@@ -312,3 +325,10 @@ streamlit run streamlit_app.py
 # Option B: Open the standalone HTML5 dashboard in any browser
 # Open dashboard/index.html
 ```
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+

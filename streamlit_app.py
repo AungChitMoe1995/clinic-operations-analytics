@@ -289,7 +289,7 @@ st.markdown("""
             <div class="clinic-subtitle">
                 <strong>Facility:</strong> Metro North Family Health Centre &nbsp;|&nbsp; 
                 <strong>Observation Window:</strong> Jan 1, 2024 – Dec 31, 2024 (250 Operating Days) &nbsp;|&nbsp;
-                <strong>Population:</strong> 2,775 Active Synthea EHR Cohort (16,998 Audited Encounters)
+                <strong>Population:</strong> 2,775 Active Synthea EHR Cohort (17,004 Audited → 16,998 Clean Visits)
             </div>
         </div>
         <div style="text-align:right;">
@@ -746,25 +746,25 @@ elif nav_mode == "🏛️ Relational Data Model":
     with dq_col1:
         st.markdown("""
         **1. Milestone Completeness (Kiosk Bypasses)**  
-        - *Detected:* 6 acute walk-in encounters lacking kiosk arrival timestamps.  
+        - *Detected:* 6 completed visits lacking kiosk arrival timestamps (`arrival_time IS NULL`).  
         - *Clinical Root Cause:* Emergent triage bypass before administrative registration.  
-        - *Resolution:* Quarantined from wait-time models to prevent artificial zero-wait bias.
+        - *Resolution:* Flagged kiosk bypass; excluded from waiting-time cohort to prevent artificial zero-wait bias.
 
-        **2. Temporal Chronology & Hardware Drift**  
-        - *Detected:* 3 encounters where triage start preceded arrival timestamp.  
-        - *Clinical Root Cause:* Front-desk tablet clock desynchronization.  
+        **2. Temporal Chronology & Clock Desync**  
+        - *Detected:* 3 encounters where physician start preceded arrival timestamp (`doctor_start < arrival_time`).  
+        - *Clinical Root Cause:* Front-desk tablet clock desynchronization producing negative wait intervals.  
         - *Resolution:* Quarantined time-sync faults to guarantee valid logical timestamps.
         """)
     with dq_col2:
         st.markdown("""
-        **3. Session Discharge Integrity**  
-        - *Detected:* 3 encounters missing final checkout timestamps at clinic close.  
-        - *Clinical Root Cause:* Unclosed EHR sessions when patients exited without front-desk stop.  
-        - *Resolution:* Quarantined from Total Clinic Length of Stay (LOS) calculations.
+        **3. Premature Checkout Sequence**  
+        - *Detected:* 3 encounters where checkout timestamp preceded consultation completion (`checkout_time < doctor_end`).  
+        - *Clinical Root Cause:* Premature front-desk discharge entry prior to physician sign-off.  
+        - *Resolution:* Excluded from Total Clinic Length of Stay (LOS) calculations.
 
         **4. Referential Key & Test Entity Deduplication**  
-        - *Detected:* 4 duplicate booking keys and 2 test provider records (`PRV-999`).  
-        - *Resolution:* Earliest booking retained, test provider quarantined. Final mart certified 16,998 rows with 100% relational integrity.
+        - *Detected:* 4 duplicate `appointment_id` keys and 2 test provider records (`PRV-999`).  
+        - *Resolution:* Earliest booking retained (4 duplicates removed) and test provider quarantined (2 removed). **17,004 raw records audited → 16,998 clean visits retained (99.96% retention).**
         """)
 
 

@@ -1,6 +1,7 @@
 # Streamlit Community Cloud Deployment Guide
 
 **Application:** Clinic Operations Analytics: Outpatient Patient Flow & Provider Workload  
+**Live Deployment URL:** **[https://clinic-operations-analytics-by-acm.streamlit.app/](https://clinic-operations-analytics-by-acm.streamlit.app/)**  
 **Target Platform:** [Streamlit Community Cloud](https://share.streamlit.io/)  
 **Primary Entry Point:** `streamlit_app.py` *(or `app.py`)*  
 
@@ -37,7 +38,7 @@ Click the **"New app"** button and enter the following settings:
 - **Repository:** `AungChitMoe1995/clinic-operations-analytics`
 - **Branch:** `main`
 - **Main file path:** `streamlit_app.py` *(or `app.py`)*
-- **App URL (optional):** Customize your subdomain (e.g., `clinic-operations-analytics.streamlit.app`)
+- **App URL:** **[https://clinic-operations-analytics-by-acm.streamlit.app/](https://clinic-operations-analytics-by-acm.streamlit.app/)**
 
 ### Step 4: Click "Deploy!"
 Streamlit Cloud will automatically:
